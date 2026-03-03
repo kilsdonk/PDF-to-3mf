@@ -1,0 +1,208 @@
+{
+  "id": "qidi_max4",
+  "name": "Qidi Max 4",
+  "manufacturer": "Qidi",
+  "templateFolder": "qidi",
+  "has3mf": true,
+  "systemType": "single_nozzle",
+  "swapTempTools": false,
+  "coordinateSystem": "standard",
+  "flipY": false,
+  "invertY": false,
+  "buildVolume": {
+    "x": 390,
+    "y": 390,
+    "z": 300
+  },
+  "nozzleConfiguration": {
+    "nozzleCount": 1,
+    "primaryNozzle": {
+      "id": 0,
+      "position": "center",
+      "type": "direct_drive",
+      "diameter": 0.4,
+      "maxTemp": 300,
+      "minTemp": 180
+    }
+  },
+  "filamentTypes": {
+    "0": {
+      "name": "PETG",
+      "color": "#ff6b00",
+      "textColor": "#000000",
+      "nozzle": 0,
+      "toolId": "T0"
+    }
+  },
+  "temperatureSettings": {
+    "filamentType": "PETG",
+    "filamentDiameter": 1.75,
+    "nozzleTemp": {
+      "T0": 245
+    },
+    "nozzleTempInitialLayer": {
+      "T0": 245
+    },
+    "standbyTemp": 0,
+    "bedTemp": 60,
+    "bedTempInitialLayer": 75,
+    "chamberTemp": 0
+  },
+  "speedSettings": {
+    "printSpeed": 8000,
+    "foundationLayersSpeed": 2000,
+    "foundationOuterWallSpeed": 2000,
+    "foundationInnerWallSpeed": 3000,
+    "foundationInfillSpeed": 3000,
+    "outerWallSpeed": 5000,
+    "innerWallSpeed": 5000,
+    "infillSpeed": 8000,
+    "travelSpeed": 12000,
+    "toolChangeSpeed": 0,
+    "purgeSpeed": 50,
+    "foundationLayersCount": 3
+  },
+  "layerSettings": {
+    "firstLayerHeight": 0.4,
+    "layerHeight": 0.2,
+    "foundationLayerHeight": 0.4,
+    "foundationLayerCount": 3,
+    "firstLayerLineWidth": 0.8,
+    "lineWidth": 0.45,
+    "layerSpecificEnabled": true
+  },
+  "flowSettings": {
+    "foundationFlowMultiplier": 1.2,
+    "regularFlowMultiplier": 0.98,
+    "foundationFlowPercent": 100,
+    "regularFlowPercent": 98,
+    "autoFlowTransition": true,
+    "transitionAtLayer": 4
+  },
+  "wallSettings": {
+    "normalWallOffset": 0.4,
+    "zigzagWallOffset": 0.9,
+    "wallOffset": 0.8,
+    "firstLayerWallOffset": 1.5,
+    "firstLayerExteriorCompensation": 0.0,
+    "firstLayerHoleCompensation": 0.6,
+    "wallPrintOrder": "inner_outer",
+    "skipWallsMinHoleSize": 2.0,
+    "skipWallsMaxHoleSize": 35.0,
+    "holeWallMaxHeight": 1.0,
+    "holeWallOffset": 0.6,
+    "holeWallLoops": 4,
+    "alignSeams": true,
+    "seamStartPoint": "back_left"
+  },
+  "infillSettings": {
+    "defaultBottomLayers": 2.0,
+    "infillOffset": 1.0,
+    "defaultDensity": 20.0,
+    "defaultLineWidth": 0.45,
+    "defaultPattern": "grid",
+    "defaultBaseAngle": 45
+  },
+  "movementSettings": {
+    "zHopHeight": 0.5,
+    "zhopThreshold": 2.0,
+    "retractionDistance": {
+      "T0": 1.0
+    },
+    "coastingDistance": 0.1,
+    "wipeDistance": 2.0,
+    "primeAmount": {
+      "T0": 1.0
+    },
+    "fastStartupEnabled": true,
+    "fastZMoveSpeed": 1500,
+    "fastWipeSpeed": 12000,
+    "spiralZhop": true,
+    "spiralZhopRadius": 1.217,
+    "zHopWhenRetracted": false
+  },
+  "shapelySettings": {
+    "offset": 0.0,
+    "corner": 0.0,
+    "whiteOffset": 0.0,
+    "resolution": 30,
+    "pixelToMm": 0.35277
+  },
+  "zigzagSettings": {
+    "enabled": false,
+    "wavelength": 10.0,
+    "amplitudeStart": 0.6,
+    "amplitudeEnd": 0.6,
+    "waveBiasStart": -0.2,
+    "waveBiasEnd": -0.2,
+    "pointsPerWavelength": 6,
+    "waveType": "sine",
+    "variableAmplitude": false,
+    "applyToMiddleWallsOnly": false
+  },
+  "fanSettings": {
+    "progressiveFanControl": false,
+    "startingLayer": 3,
+    "startingFanPercent": 0,
+    "fanIncrementPercent": 0,
+    "maxFanPercent": 100,
+    "foundationFanPercent": 0,
+    "regularFanPercent": 100,
+    "layerSpecificFanControl": false
+  },
+  "printDirectionSettings": {
+    "corkscrewMode": false,
+    "printDirection": "clockwise",
+    "seamAlignment": "aligned",
+    "seamPosition": "back_left",
+    "layerTransition": "spiral_zhop",
+    "spiralZhopCommand": "G17 G2 Z{next_layer_height} I1.217 J0 P1 F30000",
+    "wallDirection": "consistent",
+    "continuousExtrusion": false,
+    "retractBetweenWalls": false,
+    "spiralVaseMode": false
+  },
+  "layers": [
+    {
+      "height": 1.0,
+      "filament": 0,
+      "nozzle": 0,
+      "tool": "T0",
+      "wallLoops": 4,
+      "name": "Floor",
+      "index": 0,
+      "enabled": true
+    },
+    {
+      "height": 34.0,
+      "filament": 0,
+      "nozzle": 0,
+      "tool": "T0",
+      "wallLoops": 2,
+      "name": "Layer1",
+      "index": 1,
+      "enabled": true
+    },
+    {
+      "height": 15.0,
+      "filament": 0,
+      "nozzle": 0,
+      "tool": "T0",
+      "wallLoops": 3,
+      "name": "Layer2",
+      "index": 2,
+      "enabled": false
+    }
+  ],
+  "endGcodeSettings": {
+    "enabled": true,
+    "customEndGcode": ""
+  },
+  "algorithmSettings": {
+    "useAdvancedPathOptimization": true,
+    "spiralLayerTransitions": true,
+    "qidiSpiralZhop": true
+  },
+  "startupGcodeFile": "qidi_startup.txt",
+  "endGcodeFile": "qidi_end.txt"
+}

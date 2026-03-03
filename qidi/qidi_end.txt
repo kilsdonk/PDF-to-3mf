@@ -1,0 +1,23 @@
+; === REPLACED MACHINE_END_GCODE ===
+DISABLE_BOX_HEATER
+M141 S0
+M140 S0
+DISABLE_ALL_SENSOR
+
+; Retract and lift 5mm relative to print height
+G91 
+G1 E-3 F1800 
+G1 Z5 F600 
+G90 
+
+; Park Head and Lower Build Plate to 180mm
+G0 Y380 F12000
+G0 X128 Y380 F12000
+G1 Z180 F600 
+
+; Finalize Filament and Shutdown
+UNLOAD_FILAMENT T=[current_extruder]
+M104 S0
+PRINT_END
+M73 P100 R0
+; Print completed!
