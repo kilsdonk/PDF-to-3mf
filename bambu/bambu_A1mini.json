@@ -1,0 +1,358 @@
+{
+  "id": "bambu_a1mini",
+  "name": "Bambu Lab A1 Mini",
+  "manufacturer": "Bambu Lab",
+  "templateFolder": "bambu",
+  "has3mf": true,
+  "systemType": "single_nozzle",
+  "swapTempTools": false,
+  "buildVolume": {
+    "x": 180,
+    "y": 180,
+    "z": 180
+  },
+  "coordinateSystem": "standard",
+  "flipY": false,
+  "invertY": false,
+  "nozzleConfiguration": {
+    "nozzleCount": 1,
+    "primaryNozzle": {
+      "id": 0,
+      "position": "center",
+      "type": "direct_drive",
+      "diameter": 0.4,
+      "maxTemp": 300,
+      "minTemp": 190,
+      "physicalId": 0,
+      "description": "Single nozzle"
+    },
+    "nozzleVolumeType": [
+      "Standard"
+    ],
+    "nozzleType": [
+      "stainless_steel"
+    ]
+  },
+  "amsConfiguration": {
+    "enabled": false,
+    "slotCount": 0,
+    "amsType": "none",
+    "attachedToNozzle": 0
+  },
+  "filamentTypes": {
+    "0": {
+      "name": "PETG",
+      "color": "#00ff00",
+      "textColor": "#000000",
+      "nozzle": 0,
+      "amsSlot": -1,
+      "toolId": "T0"
+    }
+  },
+  "printDirectionSettings": {
+    "corkscrewMode": false,
+    "printDirection": "clockwise",
+    "seamAlignment": "continuous",
+    "seamPosition": "back_left",
+    "layerTransition": "standard",
+    "wallDirection": "consistent",
+    "retractBetweenWalls": false,
+    "retractBetweenLayers": true,
+    "continuousExtrusion": false,
+    "spiralSeamOffset": 0.0,
+    "directionConsistencyCheck": true,
+    "minimumContinuousDistance": 0.1,
+    "maxTravelWithoutRetract": 2.0,
+    "seamPositionTolerance": 0.5,
+    "windingDirectionForced": true,
+    "description": "Standard layer-by-layer printing"
+  },
+  "toolChangeSettings": {
+    "enabled": false,
+    "purgeVolume": 0,
+    "purgeSpeed": 100,
+    "wipeTowerEnabled": false,
+    "wipeTowerSize": {
+      "x": 0,
+      "y": 0,
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "toolChangeRetraction": 0.8,
+    "toolChangeSpeed": 5000,
+    "parkPosition": {
+      "x": 0,
+      "y": 170,
+      "z": 10
+    },
+    "nozzleOffsets": {
+      "T0": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "description": "Single nozzle"
+      }
+    },
+    "purgeWiperEnabled": false
+  },
+  "layers": [
+    {
+      "height": 30.0,
+      "filament": 0,
+      "nozzle": 0,
+      "tool": "T0",
+      "wallLoops": 1,
+      "name": "Floor",
+      "bottomShellLayers": 0,
+      "index": 0,
+      "enabled": true
+    },
+    {
+      "height": 25.0,
+      "filament": 0,
+      "nozzle": 0,
+      "tool": "T0",
+      "wallLoops": 3,
+      "name": "Layer1",
+      "bottomShellLayers": 0,
+      "index": 1,
+      "enabled": false
+    },
+    {
+      "height": 15.0,
+      "filament": 0,
+      "nozzle": 0,
+      "tool": "T0",
+      "wallLoops": 3,
+      "name": "Layer2",
+      "bottomShellLayers": 0,
+      "index": 2,
+      "enabled": false
+    }
+  ],
+  "clickSystemProfiles": {
+    "description": "Selectable profiles for layer 5 top surface",
+    "defaultProfile": "medium",
+    "targetLayer": 5,
+    "profiles": {
+      "medium": {
+        "name": "Medium Click",
+        "speedOverride": 750,
+        "flowOverride": 2.0,
+        "enabled": true
+      },
+      "strong": {
+        "name": "Strong Click",
+        "speedOverride": 600,
+        "flowOverride": 3.0,
+        "enabled": true
+      }
+    }
+  },
+  "temperatureSettings": {
+    "filamentType": "PETG",
+    "filamentDiameter": 1.75,
+    "nozzleTemp": {
+      "T0": 255
+    },
+    "nozzleTempInitialLayer": {
+      "T0": 255
+    },
+    "standbyTemp": 0,
+    "bedTemp": 70,
+    "bedTempInitialLayer": 70,
+    "chamberTemp": 0,
+    "description": "Temperatures"
+  },
+  "speedSettings": {
+    "printSpeed": 6000,
+    "foundationLayersSpeed": 3000,
+    "foundationOuterWallSpeed": 3000,
+    "foundationInnerWallSpeed": 3000,
+    "foundationInfillSpeed": 3000,
+    "outerWallSpeed": 2000,
+    "innerWallSpeed": 3000,
+    "infillSpeed": 3000,
+    "travelSpeed": 5000,
+    "toolChangeSpeed": 0,
+    "purgeSpeed": 50,
+    "foundationLayersCount": 3
+  },
+  "layerSettings": {
+    "firstLayerHeight": 0.3,
+    "layerHeight": 0.2,
+    "foundationLayerHeight": 0.2,
+    "foundationLayerCount": 3,
+    "foundationTotalHeight": 0.6,
+    "firstLayerLineWidth": 0.5,
+    "lineWidth": 0.42,
+    "layerSpecificEnabled": true
+  },
+  "flowSettings": {
+    "foundationFlowMultiplier": 1.0,
+    "regularFlowMultiplier": 0.95,
+    "foundationFlowPercent": 100,
+    "regularFlowPercent": 95,
+    "autoFlowTransition": true,
+    "transitionAtLayer": 4
+  },
+  "wallSettings": {
+    "normalWallOffset": 0.4,
+    "zigzagWallOffset": 0.9,
+    "wallOffset": 0.8,
+    "firstLayerWallOffset": 0.8,
+    "firstLayerExteriorCompensation": 0.0,
+    "firstLayerHoleCompensation": 0.6,
+    "wallPrintOrder": "inside_to_outside",
+    "layerCompensationMap": {
+      "0": 0.0,
+      "1": 0.0,
+      "2": 0.0,
+      "3": 0.0
+    },
+    "skipWallsMinHoleSize": 2.0,
+    "skipWallsMaxHoleSize": 35.0,
+    "holeWallMaxHeight": 2.0,
+    "holeWallOffset": 0.6,
+    "holeWallLoops": 4
+  },
+  "infillSettings": {
+    "defaultDensity": 12,
+    "defaultLineWidth": 0.6,
+    "defaultPattern": "grid",
+    "defaultBaseAngle": 45,
+    "defaultBottomLayers": 0,
+    "infillOffset": 0,
+    "firstLayerInfillOffset": 0,
+    "maxInfillTravelWithoutRetract": 50,
+    "infillStartOffset": 0.0,
+    "infillWallOffset": 0.0,
+    "maxInfillDistances": {
+      "0": 2.2
+    }
+  },
+  "movementSettings": {
+    "zHopHeight": 0.4,
+    "zhopThreshold": 2.0,
+    "retractionDistance": {
+      "T0": 0.8
+    },
+    "coastingDistance": 0.1,
+    "wipeDistance": 2.0,
+    "primeAmount": {
+      "T0": 0.8
+    },
+    "fastStartupEnabled": true,
+    "fastZMoveSpeed": 1200,
+    "fastWipeSpeed": 12000
+  },
+  "shapelySettings": {
+    "offset": 0.0,
+    "corner": 0.0,
+    "whiteOffset": 0.0,
+    "resolution": 8,
+    "pixelToMm": 0.35277
+  },
+  "zigzagSettings": {
+    "enabled": true,
+    "wavelength": 5.0,
+    "amplitudeStart": 1.5,
+    "amplitudeEnd": 1.5,
+    "waveBiasStart": -0.2,
+    "waveBiasEnd": -0.2,
+    "pointsPerWavelength": 20,
+    "waveType": "sine",
+    "variableAmplitude": false,
+    "applyToMiddleWallsOnly": true
+  },
+  "foundationSettings": {
+    "foundationLayerCount": 3,
+    "foundationLayerHeight": 0.2,
+    "foundationTotalHeight": 0.6,
+    "foundationFlowMultiplier": 1.0,
+    "foundationFlowPercent": 100
+  },
+  "regularLayerSettings": {
+    "regularLayerHeight": 0.2,
+    "regularFlowMultiplier": 0.95,
+    "regularFlowPercent": 95,
+    "startingLayer": 4
+  },
+  "algorithmSettings": {
+    "layerHeightCalculation": 0.2,
+    "foundationLayerCalculation": 0.2,
+    "minimumMoveDistance": 0.01,
+    "significantMoveDistance": 0.1,
+    "curveDetectionMinPoints": 20,
+    "curveDetectionMaxSegmentLength": 2.0,
+    "minimumSegmentLength": 0.01,
+    "zhopTravelThreshold": 0.1,
+    "optimizationDistanceThreshold": 0.1,
+    "toolChangeOptimization": false,
+    "layerSpecificOptimization": true,
+    "flowTransitionOptimization": true,
+    "directionConsistency": true,
+    "seamContinuity": true,
+    "spiralLayerTransitions": false,
+    "windingDirectionPreservation": true,
+    "continuousExtrusionMode": false,
+    "retractOnlyForJumps": true,
+    "fallbackCurveResolution": 20,
+    "fallbackPrintHeight": 10.0,
+    "fallbackShapeWidth": 50.0,
+    "fallbackShapeHeight": 50.0
+  },
+  "fanSettings": {
+    "progressiveFanControl": false,
+    "startingLayer": 4,
+    "startingFanPercent": 0,
+    "fanIncrementPercent": 0,
+    "maxFanPercent": 0,
+    "foundationFanPercent": 0,
+    "regularFanPercent": 0,
+    "layerSpecificFanControl": false,
+    "chamberFan": {
+      "enabled": false,
+      "speed": 0,
+      "temperatureThreshold": 0
+    }
+  },
+  "mf3Settings": {
+    "zipCompressionLevel": 6,
+    "thumbnailType": "minimal_png",
+    "includeGcodeInPackage": true,
+    "metadataVersion": "v8.0.0",
+    "multiMaterialSupport": false,
+    "toolChangeMetadata": false,
+    "layerSpecificMetadata": true,
+    "format": "bambu_compatible",
+    "fixedAmsInitialization": false
+  },
+  "metadataSettings": {
+    "application": "Bambu A1 Mini - v8.0.0",
+    "toolCount": 1,
+    "nozzleCount": 1,
+    "amsSlotCount": 0
+  },
+  "endGcodeSettings": {
+    "finalRetraction": 0.8,
+    "finalLiftHeight": 10,
+    "finalLiftSpeed": 1500,
+    "homeXY": false,
+    "cooldownNozzleTemp": 0,
+    "cooldownBedTemp": 0,
+    "cooldownChamberTemp": 0,
+    "fanOff": true,
+    "motorsOff": true,
+    "sequenceType": "bambu_single_nozzle",
+    "presentPrint": true,
+    "parkPosition": "front_center",
+    "presentSpeed": 5000,
+    "amsUnload": false,
+    "fastEndSequence": true
+  },
+  "startupGcodeFile": "startup_A1mini.txt",
+  "endGcodeFile": "end_close.txt"
+}
