@@ -1,0 +1,26 @@
+{
+  "brands": [
+    {
+      "id": "bambu",
+      "name": "Bambu Lab",
+      "printers": [
+        {
+          "id": "bambu_A1mini",
+          "name": "Bambu Lab A1 Mini",
+          "has3mf": true
+        }
+      ]
+    },
+    {
+      "id": "qidi",
+      "name": "Qidi",
+      "printers": [
+        {
+          "id": "qidi_max4",
+          "name": "Qidi Max 4",
+          "has3mf": false
+        }
+      ]
+    }
+  ]
+}
