@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SVG to 3MF Pipeline - Bambu A1 mini</title>
+    
+    <style>
+        /* ================================================================================= */
+        /* GENERAL PAGE STYLES */
+        /* ================================================================================= */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        /* ================================================================================= */
+        /* PDF UPLOADER SECTION (test_upload embed) */
+        /* ================================================================================= */
+        .pdf-uploader-section {
+            width: 1200px;
+            max-width: 1200px;
+            margin: 0 auto 30px auto;
+            border: 2px solid #667eea;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .pdf-uploader-toggle {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 24px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            user-select: none;
+        }
+        .pdf-uploader-toggle:hover { filter: brightness(1.08); }
+        .pdf-uploader-toggle .toggle-arrow { transition: transform 0.3s; font-size: 18px; }
+        .pdf-uploader-toggle.collapsed .toggle-arrow { transform: rotate(-90deg); }
+        .pdf-uploader-inner {
+            background: white;
+            padding: 24px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .pdf-uploader-inner .pu-subtitle { color: #7f8c8d; margin-bottom: 20px; font-size: 14px; }
+        .pdf-uploader-inner .mode-tabs {
+            display: flex; gap: 4px; margin-bottom: 24px;
+            background: #f1f3f4; padding: 4px;
+            border-radius: 10px; width: fit-content;
+        }
+        .pdf-uploader-inner .mode-tab {
+            padding: 10px 20px; font-family: 'Segoe UI', sans-serif;
+            font-size: 14px; font-weight: 600; border: none;
+            border-radius: 8px; cursor: pointer;
+            background: transparent; color: #7f8c8d; transition: all 0.2s;
+        }
+        .pdf-uploader-inner .mode-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .pdf-uploader-inner .panel { display: none; }
+        .pdf-uploader-inner .panel.active { display: block; }
+        .pdf-uploader-inner .upload-row { display: flex; gap: 16px; margin-bottom: 16px; }
+        .pdf-uploader-inner .upload-box {
+            flex: 1; border: 3px dashed #667eea; border-radius: 12px;
+            padding: 24px; text-align: center; background: #f8f9ff;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .pdf-uploader-inner .upload-box:hover { border-color: #764ba2; background: #f0f2ff; }
+        .pdf-uploader-inner .upload-box.loaded { border-color: #27ae60; border-style: solid; background: #f0fff4; }
+        .pdf-uploader-inner .upload-icon { font-size: 40px; margin-bottom: 8px; }
+        .pdf-uploader-inner .upload-label { font-size: 15px; font-weight: 700; color: #2c3e50; margin-bottom: 4px; }
+        .pdf-uploader-inner .upload-hint { font-size: 12px; color: #7f8c8d; }
+        .pdf-uploader-inner .upload-filename { margin-top: 8px; font-size: 12px; color: #27ae60; font-weight: 600; }
+        .pdf-uploader-inner input[type="file"] { display: none; }
+        .pdf-uploader-inner .settings-row {
+            display: flex; align-items: center; gap: 20px;
+            padding: 14px 18px; background: #f8f9fa;
+            border-radius: 10px; border: 1px solid #e9ecef; margin-bottom: 16px;
+        }
+        .pdf-uploader-inner .setting-item { display: flex; align-items: center; gap: 8px; }
+        .pdf-uploader-inner .setting-item label { font-size: 13px; color: #495057; font-weight: 600; }
+        .pdf-uploader-inner .setting-item input[type="number"] {
+            width: 70px; border: 2px solid #dee2e6; border-radius: 6px;
+            padding: 6px 10px; font-size: 14px; font-family: 'Segoe UI', sans-serif; outline: none;
+        }
+        .pdf-uploader-inner .setting-item input[type="number"]:focus { border-color: #667eea; }
+        .pdf-uploader-inner .setting-unit { font-size: 13px; color: #7f8c8d; }
+        .pdf-uploader-inner .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border: none; padding: 15px 40px;
+            border-radius: 10px; font-size: 16px; font-weight: 700;
+            cursor: pointer; width: 100%; margin-bottom: 16px;
+            transition: all 0.3s; font-family: 'Segoe UI', sans-serif;
+        }
+        .pdf-uploader-inner .btn:hover:not(:disabled) {
+            transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102,126,234,0.6);
+        }
+        .pdf-uploader-inner .btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        .pdf-uploader-inner .pu-status {
+            padding: 14px 18px; border-radius: 10px; margin-bottom: 16px;
+            display: none; font-size: 14px;
+        }
+        .pdf-uploader-inner .pu-status.success  { background: #d4edda; color: #155724; display: block; }
+        .pdf-uploader-inner .pu-status.error    { background: #f8d7da; color: #721c24; display: block; }
+        .pdf-uploader-inner .pu-status.processing { background: #d1ecf1; color: #0c5460; display: block; }
+        .pdf-uploader-inner .preview-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 16px;
+        }
+        .pdf-uploader-inner .preview-panel {
+            border: 2px solid #dee2e6; border-radius: 12px;
+            overflow: hidden; background: #f8f9fa;
+        }
+        .pdf-uploader-inner .preview-panel-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px; background: white; border-bottom: 2px solid #dee2e6;
+        }
+        .pdf-uploader-inner .preview-panel-title {
+            display: flex; align-items: center; gap: 8px; font-size: 13px;
+            font-weight: 700; color: #495057; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .pdf-uploader-inner .pu-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #dee2e6; }
+        .pdf-uploader-inner .pu-status-dot.active { background: #667eea; }
+        .pdf-uploader-inner .pu-status-dot.ready  { background: #27ae60; }
+        .pdf-uploader-inner .preview-body {
+            min-height: 320px; display: flex; justify-content: center;
+            align-items: center; padding: 16px; background: white;
+        }
+        .pdf-uploader-inner .preview-body img,
+        .pdf-uploader-inner .preview-body svg { max-width: 100%; max-height: 320px; object-fit: contain; }
+        .pdf-uploader-inner .preview-placeholder { text-align: center; color: #adb5bd; }
+        .pdf-uploader-inner .preview-placeholder p { font-size: 13px; margin-top: 8px; }
+        .pdf-uploader-inner .preview-footer {
+            padding: 10px 16px; background: #f8f9fa; border-top: 1px solid #dee2e6;
+            font-size: 12px; color: #6c757d; min-height: 36px;
+        }
+        .pdf-uploader-inner .download-row { display: flex; gap: 10px; }
+        .pdf-uploader-inner .dl-btn {
+            flex: 1; padding: 13px 16px; border: none; border-radius: 8px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            font-family: 'Segoe UI', sans-serif; transition: all 0.2s;
+        }
+        .pdf-uploader-inner .dl-btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
+        .pdf-uploader-inner .dl-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .pdf-uploader-inner .dl-svg { background: #667eea; color: white; }
+        .pdf-uploader-inner .dl-png { background: #17a2b8; color: white; }
+        .pdf-uploader-inner .file-info {
+            display: none; padding: 10px 14px; background: #e9ecef;
+            border-radius: 8px; margin-bottom: 12px; font-size: 13px;
+            color: #495057; gap: 20px;
+        }
+        .pdf-uploader-inner .file-info.show { display: flex; }
+
+        /* ================================================================================= */
+        /* PRINTER SELECTION CARDS - SMALLER SIZE */
+        /* ================================================================================= */
+        .printer-selection {
+            text-align: center;
+            margin: 0 auto 20px auto;
+            padding: 15px;
+        }
+        
+        .printer-selection h2 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .printer-cards {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .printer-card {
+            width: 160px;
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .printer-card:hover {
+            border-color: #999;
+            transform: translateY(-3px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        .printer-card.selected {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+            box-shadow: 0 3px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        /* QIDI printer cards turn orange when selected */
+        .printer-card.qidi.selected {
+            border-color: #FF9800;
+            background: #fff3e0;
+            box-shadow: 0 3px 15px rgba(255, 152, 0, 0.3);
+        }
+        
+        .printer-card .checkmark {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            background: #4CAF50;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        /* QIDI checkmark is orange */
+        .printer-card.qidi .checkmark {
+            background: #FF9800;
+        }
+        
+        .printer-card.selected .checkmark {
+            display: flex;
+        }
+        
+        .printer-card img {
+            width: 100%;
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 6px;
+            padding: 5px;
+        }
+        
+        .printer-card h3 {
+            color: #2c3e50;
+            font-size: 13px;
+            margin: 5px 0 3px 0;
+        }
+        
+        .printer-card .printer-info {
+            font-size: 10px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .printer-card .support-badge {
+            display: inline-block;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .printer-card .support-3mf {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .printer-card .support-gcode {
+            background: #FF9800;
+            color: white;
+        }
+        
+        /* ================================================================================= */
+        /* PRESET SELECTION CARDS */
+        /* ================================================================================= */
+        .preset-selection {
+            text-align: center;
+            margin: 0 auto 20px auto;
+            padding: 15px;
+            background: #fafafa;
+            border-radius: 10px;
+        }
+        
+        .preset-selection h2 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .preset-cards {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: nowrap;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .preset-card {
+            width: 130px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            text-align: center;
+        }
+        
+        .preset-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        .preset-card.selected {
+            border-color: #2196F3;
+            background: #e3f2fd;
+            box-shadow: 0 3px 15px rgba(33, 150, 243, 0.3);
+        }
+        
+        .preset-card .checkmark {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            background: #2196F3;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .preset-card.selected .checkmark {
+            display: flex;
+        }
+        
+        .preset-card h3 {
+            color: #2c3e50;
+            font-size: 14px;
+            margin: 8px 0 5px 0;
+            font-weight: bold;
+        }
+        
+        .preset-card .preset-desc {
+            font-size: 10px;
+            color: #666;
+            margin-top: 5px;
+            line-height: 1.3;
+        }
+            color: white;
+        }
+        
+        /* ================================================================================= */
+        /* SHAPELY SECTION STYLES */
+        /* ================================================================================= */
+        .shapely-section {
+            max-width: 1200px;
+            width: 1200px;
+            margin: 0 auto 10px auto;
+            background: white;
+            padding: 30px;
+            color: #333;
+            min-height: 450px;
+        }
+        
+        .shapely-upload {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .shapely-upload-btn {
+            background: #f9f9f9;
+            border: 2px solid #ccc;
+            color: #333;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        .shapely-upload-btn:hover {
+            background: #f0f0f0;
+            border-color: #999;
+        }
+        
+        .shapely-preview {
+            display: flex;
+            gap: 15px;
+            margin: 0 auto 20px auto;
+            width: 1140px;
+            min-height: 310px;
+            justify-content: center;
+        }
+        
+        .shapely-preview-box {
+            flex: 1;
+            background: #f9f9f9;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            height: 280px;
+            border: 3px solid #333;
+            width: 360px;
+            min-width: 360px;
+            max-width: 360px;
+        }
+        
+        .shapely-preview-box h3 {
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .shapely-svg-content {
+            width: 100%;
+            height: 220px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        .shapely-svg-content svg {
+            max-width: 90%;
+            max-height: 90%;
+            width: auto;
+            height: auto;
+        }
+        
+        .shapely-controls {
+            background: #f8f8f8;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .shapely-controls-grid {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .shapely-control-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .shapely-control-item label {
+            min-width: 80px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .shapely-control-item input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+            color: #333;
+        }
+        
+        /* ================================================================================= */
+        /* INFILL CONTROLS STYLES - ENHANCED FROM infill-good.html */
+        /* ================================================================================= */
+        .infill-controls {
+            background: #f0f8ff;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 2px solid #4CAF50;
+        }
+        
+        .infill-controls h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .infill-controls p {
+            color: #666;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+        
+        .infill-controls-grid {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .infill-control-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .infill-control-item label {
+            min-width: 120px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .infill-control-item input, .infill-control-item select {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            color: #333;
+            transition: border-color 0.3s;
+        }
+        
+        .infill-control-item input:focus, .infill-control-item select:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        
+        .infill-preview {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 8px;
+            border: 2px solid #4CAF50;
+            font-size: 13px;
+        }
+        
+        .infill-preview strong {
+            color: #2c3e50;
+        }
+        
+        .infill-preview-content {
+            margin-top: 8px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        /* ================================================================================= */
+        /* LAYER CONFIGURATION STYLES */
+        /* ================================================================================= */
+        .layer-card {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 12px;
+            width: 160px;
+            min-width: 160px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .layer-card.disabled {
+            background: #ffebeb;
+            border: 2px solid #ff6b6b;
+            opacity: 0.6;
+        }
+        .layer-card.mismatch-warning {
+            background: #fff3cd;
+            border: 3px solid #ff9800;
+        }
+        .layer-card.click-system-card {
+            background: #fff;
+            border: 2px solid #FF9800;
+        }
+        .layer-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .layer-index {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            background: #007ACC;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 3px 6px;
+            border-radius: 10px;
+            min-width: 16px;
+            text-align: center;
+        }
+        .layer-card.disabled .layer-index {
+            background: #ff6b6b;
+        }
+        .mismatch-badge {
+            position: absolute;
+            top: 6px;
+            left: 8px;
+            background: #ff9800;
+            color: white;
+            font-size: 9px;
+            font-weight: bold;
+            padding: 3px 6px;
+            border-radius: 10px;
+        }
+        .setting-group {
+            margin-bottom: 15px;
+        }
+        .setting-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        .setting-input {
+            display: flex;
+            align-items: center;
+        }
+        .setting-input input {
+            width: 50px;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 4px;
+            height: 32px;
+            box-sizing: border-box;
+            font-size: 13px;
+        }
+        .setting-input select {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            height: 32px;
+            box-sizing: border-box;
+            font-size: 12px;
+        }
+        .filament-select {
+            color: #000;
+            font-weight: bold;
+            font-size: 11px;
+        }
+        
+        /* Click System Specific Styles */
+        .click-system-card .setting-input.fixed input {
+            background: #f5f5f5;
+            color: #666;
+            border-color: #e0e0e0;
+        }
+        .click-system-card .setting-input.auto-tool {
+            padding: 10px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            color: #666;
+        }
+        .profile-description {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f0f8ff;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #666;
+            border-left: 4px solid #FF9800;
+        }
+        
+        /* ================================================================================= */
+        /* PIPELINE BUTTONS */
+        /* ================================================================================= */
+        .pipeline-section {
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .pipeline-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .pipeline-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .stage1-btn {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .stage1-btn:hover:not(:disabled) {
+            background: #45a049;
+        }
+        
+        .stage2-btn {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .stage2-btn:hover:not(:disabled) {
+            background: #1976D2;
+        }
+        
+        .final-btn {
+            background: #F44336;
+            color: white;
+        }
+        
+        .final-btn:hover:not(:disabled) {
+            background: #D32F2F;
+        }
+        
+        .pipeline-btn:disabled {
+            background: #ccc;
+            color: #999;
+            cursor: not-allowed;
+        }
+        
+        .pipeline-stage {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+        
+        .stage-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+
+        .load-btn {
+            background: #FF9800;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .load-btn:hover {
+            background: #F57C00;
+        }
+
+        .validation-warning {
+            background: #fff3cd;
+            border: 2px solid #ff9800;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px auto;
+            max-width: 800px;
+            color: #856404;
+        }
+
+        .validation-warning strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        /* NEW: Zigzag button style */
+        .zigzag-btn {
+            background: #9C27B0;
+            color: white;
+        }
+        
+        .zigzag-btn:hover {
+            background: #7B1FA2;
+        }
+        
+        /* ================================================================================= */
+        /* GCODE VIEWER STYLES */
+        /* ================================================================================= */
+        .gcode-viewer-section {
+            max-width: 700px;  /* Half of 1400px */
+            width: 50%;
+            margin: 30px auto;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .gcode-viewer-section h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        #gcodeViewer {
+            width: 100%;
+            height: 600px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            border: 2px solid #333;
+            margin-top: 10px;
+        }
+        
+        .viewer-controls-panel {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+        }
+        
+        .viewer-control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .viewer-control-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .viewer-control-group label {
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .viewer-control-group select {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .viewer-control-group button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            background: #2196F3;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .viewer-control-group button:hover {
+            background: #1976D2;
+        }
+        
+        .viewer-controls {
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .refresh-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 0 5px;
+        }
+        
+        .refresh-btn:hover {
+            background: #45a049;
+        }
+        
+        /* Color Legend Styles */
+        .color-legend {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            padding: 10px 0;
+            border-top: 1px solid #ddd;
+            margin-top: 10px;
+        }
+        
+        .color-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+        
+        .color-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid #333;
+        }
+        
+        /* Layer Slider Styles */
+        #layerSlider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: #ddd;
+            border-radius: 5px;
+            outline: none;
+        }
+        
+        #layerSlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #4CAF50;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        
+        #layerSlider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #4CAF50;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+        }
+        
+        #currentLayer {
+            font-weight: bold;
+            color: #4CAF50;
+            min-width: 50px;
+            display: inline-block;
+        }
+    </style>
+    <!-- THREE.js for GCode Viewer - NO npm needed! -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Using CUSTOM gcode parser - no GCodeLoader needed -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- SheetJS for Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container">
+
+        <!-- ===================================================================================== -->
+        <!-- PDF TO SVG UPLOADER (from test_upload.html) -->
+        <!-- ===================================================================================== -->
+        <div class="pdf-uploader-section">
+            <div class="pdf-uploader-toggle" id="pdfUploaderToggle" onclick="togglePdfUploader()">
+                <span>📄 Step 1: PDF to SVG Converter</span>
+                <span class="toggle-arrow">▼</span>
+            </div>
+            <div class="pdf-uploader-inner" id="pdfUploaderInner">
+                <p class="pu-subtitle">Professional vectorization for signage letters — Lasercutter ready</p>
+
+                <div class="mode-tabs">
+                    <button class="mode-tab active" onclick="puSwitchMode('simple')">📄 PDF → SVG</button>
+                    <button class="mode-tab" onclick="puSwitchMode('holes')">🔩 Letters + Drill Holes</button>
+                </div>
+
+                <div class="panel active" id="pu-panel-simple">
+                    <div class="upload-row">
+                        <div class="upload-box" id="pu-zone-simple" onclick="document.getElementById('pu-input-simple').click()">
+                            <div class="upload-icon">📤</div>
+                            <div class="upload-label">Letters PDF</div>
+                            <div class="upload-hint">Click to upload or drag &amp; drop</div>
+                            <div class="upload-filename" id="pu-name-simple"></div>
+                            <input type="file" id="pu-input-simple" accept=".pdf">
+                        </div>
+                    </div>
+                    <div class="file-info" id="pu-fileInfo-simple">
+                        <span>📄 <strong id="pu-fi-name-simple">—</strong></span>
+                        <span>📦 <strong id="pu-fi-size-simple">—</strong></span>
+                    </div>
+                    <button class="btn" id="pu-btn-simple" disabled onclick="puRunSimple()" style="display:none">🚀 Convert PDF → SVG</button>
+                </div>
+
+                <div class="panel" id="pu-panel-holes">
+                    <div class="upload-row">
+                        <div class="upload-box" id="pu-zone-holes" onclick="document.getElementById('pu-input-holes').click()">
+                            <div class="upload-icon">🔩</div>
+                            <div class="upload-label">Letters + Guide Lines PDF</div>
+                            <div class="upload-hint">Black filled letters + <span style="color:red;font-weight:700;">red</span> horizontal guide lines<br>All in one PDF file</div>
+                            <div class="upload-filename" id="pu-name-holes"></div>
+                            <input type="file" id="pu-input-holes" accept=".pdf">
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div class="setting-item">
+                            <label>Hole diameter:</label>
+                            <input type="number" id="pu-hole-diameter" value="6" min="1" max="50" step="0.5">
+                            <span class="setting-unit">mm</span>
+                        </div>
+                    </div>
+                    <button class="btn" id="pu-btn-holes" disabled onclick="puRunHoles()">🔩 Convert Letters + Drill Holes</button>
+                </div>
+
+                <div class="pu-status" id="pu-status"></div>
+
+                <!-- PNG panel hidden, IDs kept for JS -->
+                <div style="display:none">
+                    <span class="pu-status-dot" id="pu-dot-png"></span>
+                    <span id="pu-info-png"></span>
+                    <div id="pu-preview-png"></div>
+                    <div id="pu-footer-png"></div>
+                    <button class="dl-btn dl-png" id="pu-dl-png" onclick="puDownloadFile('png')" disabled>⬇️ Download PNG (Bitmap)</button>
+                </div>
+
+                <!-- SVG panel full width -->
+                <div class="preview-panel" style="margin-bottom: 16px;">
+                    <div class="preview-panel-header">
+                        <div class="preview-panel-title">
+                            <span class="pu-status-dot" id="pu-dot-svg"></span>
+                            OUTPUT — SVG PREVIEW
+                        </div>
+                        <span id="pu-info-svg" style="font-size:12px;color:#6c757d;"></span>
+                    </div>
+                    <div class="preview-body" id="pu-preview-svg" style="min-height: 480px;">
+                        <div class="preview-placeholder">
+                            <div style="font-size:48px;">✨</div>
+                            <p>Vectorized SVG will appear here</p>
+                        </div>
+                    </div>
+                    <div class="preview-footer" id="pu-footer-svg"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================================================== -->
+        <!-- PRINTER SELECTION CARDS -->
+        <!-- ===================================================================================== -->
+        <div class="printer-selection" style="display:none">
+            <div class="printer-cards" id="printerCards">
+                <!-- Printer cards will be dynamically generated by JavaScript -->
+            </div>
+        </div>
+        </div>
+        
+        <!-- ===================================================================================== -->
+        <!-- PRESET SELECTION CARDS -->
+        <!-- ===================================================================================== -->
+        <div class="preset-selection" style="display:none">
+            <div class="preset-cards" id="presetCards">
+                <!-- Preset cards will be dynamically generated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- ===================================================================================== -->
+        <!-- SHAPELY UPLOAD AND PROCESSING SECTION -->
+        <!-- ===================================================================================== -->
+        <div class="shapely-section">
+            <!-- File Upload Section -->
+            <div class="shapely-upload">
+                <input type="file" id="shapelyFileInput" accept=".svg" style="display: none;">
+                <div class="shapely-upload-btn" id="shapelyAutoStatus" style="display:none;">
+                    ⏳ Waiting for SVG from PDF converter above…
+                </div>
+            </div>
+            
+            <!-- Preview Section -->
+            <div class="shapely-preview">
+                <div class="shapely-preview-box">
+                    <h3>Original Input:</h3>
+                    <div class="shapely-svg-content" id="shapelyOriginalSvg">
+                        <div style="color: #999;">Convert a PDF above to load SVG automatically</div>
+                    </div>
+                </div>
+                
+                <div class="shapely-preview-box">
+                    <h3>Acrylic cut:</h3>
+                    <div class="shapely-svg-content" id="shapelyFaceSvg">
+                        <div style="color: #999;">Face file will appear here</div>
+                    </div>
+                </div>
+                
+                <div class="shapely-preview-box">
+                    <h3>Inside white box:</h3>
+                    <div class="shapely-svg-content" id="shapelyReturnSvg">
+                        <div style="color: #999;">Return file will appear here</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shapely Controls -->
+            <div class="shapely-controls">
+                <h3 style="text-align: center; color: #2c3e50; margin-bottom: 20px;">Shapely Processing Settings</h3>
+                <div class="shapely-controls-grid">
+       
+                    <div class="shapely-control-item">
+                        <label>Corner (mm):</label>
+                        <input type="number" id="shapelyCornerInput" value="4.0" step="0.1" placeholder="4.0" style="width: 80px;">
+                    </div>
+					
+                    <div class="shapely-control-item">
+                        <label>Resolution:</label>
+                        <input type="number" id="shapelyResolutionInput" value="20" step="1" placeholder="20" style="width: 80px;">
+                    </div>
+                    
+                    <div class="shapely-control-item">
+                        <label>Acryl face offset:</label>
+                        <input type="number" id="shapelyWhiteOffsetInput" value="-3.0" step="0.1" placeholder="-3.0" style="width: 80px;">
+                    </div>
+					
+                    <div class="shapely-control-item">
+                        <label>White box offset:</label>
+                        <input type="number" id="shapelyOffsetInput" value="5.0" step="0.1" placeholder="5.0" style="width: 80px;">
+                    </div>
+                </div>
+                
+                <!-- NEW: Zigzag Controls -->
+                <div style="display:none"><hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
+                <h4 style="text-align: center; color: #2c3e50; margin-bottom: 15px;">Zigzag Effect (Optional)</h4>
+                <div class="shapely-controls-grid">
+                    <div class="shapely-control-item">
+                        <label>Wavelength (mm):</label>
+                        <input type="number" id="zigzagWavelengthInput" value="5" step="1" placeholder="20" style="width: 80px;">
+                    </div>
+                    
+                    <div class="shapely-control-item">
+                        <label>Amplitude Start (mm):</label>
+                        <input type="number" id="zigzagAmplitudeStartInput" value="1.5" step="0.5" placeholder="5" style="width: 80px;">
+                    </div>
+                    
+                    <div class="shapely-control-item">
+                        <label>Amplitude End (mm):</label>
+                        <input type="number" id="zigzagAmplitudeEndInput" value="1.5" step="0.5" placeholder="5" style="width: 80px;">
+                    </div>
+                    
+                    <div class="shapely-control-item">
+                        <label>Wave Bias Start (mm):</label>
+                        <input type="number" id="waveBiasStartInput" value="-0.2" step="0.1" placeholder="0.0" style="width: 80px;">
+                    </div>
+                    
+                    <div class="shapely-control-item">
+                        <label>Wave Bias End (mm):</label>
+                        <input type="number" id="waveBiasEndInput" value="-0.2" step="0.1" placeholder="0.0" style="width: 80px;">
+                    </div>
+                    
+                    <div class="shapely-control-item">
+                        <label>Normal Wall Offset:</label>
+                        <input type="number" id="normalWallOffsetInput" value="4.0" step="0.1" placeholder="4.0" style="width: 80px;">
+                    </div>
+                    
+                    <div class="shapely-control-item">
+                        <label>Zigzag Wall Offset:</label>
+                        <input type="number" id="zigzagWallOffsetInput" value="1.5" step="0.1" placeholder="1.5" style="width: 80px;">
+                    </div>
+                </div></div><!-- /zigzag hidden -->
+            </div>
+        </div>
+        
+        <!-- ===================================================================================== -->
+        <!-- VALIDATION WARNING -->
+        <!-- ===================================================================================== -->
+        <div id="validationWarning" class="validation-warning" style="display: none;">
+            <strong>⚠️ Configuration Mismatch Detected</strong>
+            <div id="validationMessage"></div>
+        </div>
+        
+        <!-- ===================================================================================== -->
+        <!-- INFILL CONFIGURATION SECTION - ENHANCED FROM infill-good.html -->
+        <!-- ===================================================================================== -->
+        <div style="display:none"><div style="max-width: 1200px; margin: 0 auto;">
+            <div class="infill-controls" id="infillControlsPanel">
+                <h3 style="text-align: center; color: #2c3e50; margin-bottom: 10px;">Automatic Infill for Closed Paths</h3>
+                <p style="text-align: center;" id="infillDescription">Infill is automatically applied to closed paths (like filled letters) - open paths use walls only</p>
+                <div class="infill-controls-grid">
+                    <div class="infill-control-item">
+                        <label>Enable Infill:</label>
+                        <select id="infillEnabledInput">
+                            <option value="true">Auto (Closed paths only)</option>
+                            <option value="false">Disabled</option>
+                        </select>
+                    </div>
+                    
+                    <div class="infill-control-item">
+                        <label>Density (%):</label>
+                        <input type="number" id="infillDensityInput" value="20" min="10" max="100" step="5" style="width: 80px;">
+                    </div>
+                    
+                    <div class="infill-control-item">
+                        <label>Infill Layers:</label>
+                        <select id="infillLayersInput" onchange="updateInfillPreview()">
+                            <option value="1">Layer 1 Only</option>
+                            <option value="1,2" selected>Layer 1 + 2 (90° rotation)</option>
+                            <option value="1,2,3">Layer 1 + 2 + 3</option>
+                            <option value="1,2,3,4">All 4 Layers</option>
+                        </select>
+                    </div>
+                    
+                    <div class="infill-control-item">
+                        <label>Base Angle:</label>
+                        <input type="number" id="infillAngleInput" value="45" min="0" max="90" step="15" style="width: 80px;" onchange="updateInfillPreview()">
+                    </div>
+                    
+                    <div class="infill-control-item">
+                        <label>Line Width (mm):</label>
+                        <input type="number" id="infillLineWidthInput" value="0.42" min="0.1" max="1.0" step="0.02" style="width: 80px;">
+                    </div>
+                </div>
+                
+                <div class="infill-preview">
+                    <strong>Infill Pattern Preview:</strong>
+                    <div id="infillPreviewContent" class="infill-preview-content">
+                        Layer 1: 45° lines<br>Layer 2: 135° lines<br>Layer 3: 45° lines<br>Layer 4: 135° lines
+                    </div>
+                    <div style="margin-top: 8px; font-size: 11px; color: #888;">
+                        Note: Infill only applies to closed paths (filled shapes). Open paths use offset walls only.
+                    </div>
+                </div>
+            </div>
+        </div></div><!-- /infill hidden -->
+        
+        <!-- ===================================================================================== -->
+        <!-- GCODE VIEWER SECTION -->
+        <!-- ===================================================================================== -->
+        <div class="gcode-viewer-section" style="display:none">
+            <h2>GCode Preview (Multi-Color)</h2>
+            
+            <!-- Viewer Controls Panel -->
+            <div class="viewer-controls-panel">
+                <div class="viewer-control-group">
+                    <button class="refresh-btn" onclick="refreshGcodeViewer()">🔄 Refresh Preview</button>
+                    <span style="color: #666; font-size: 12px; margin-left: 10px;">Auto-updates after SVG upload</span>
+                </div>
+                
+                <div class="viewer-control-group">
+                    <label>Background:</label>
+                    <select id="bgColorSelect" onchange="changeBackground()">
+                        <option value="#f5f5f5" selected>Light Gray</option>
+                        <option value="#ffffff">White</option>
+                        <option value="#222222">Dark Gray</option>
+                        <option value="#000000">Black</option>
+                    </select>
+                    
+                    <label style="margin-left: 15px;">Grid:</label>
+                    <select id="gridToggle" onchange="toggleGrid()">
+                        <option value="on" selected>On</option>
+                        <option value="off">Off</option>
+                    </select>
+                    
+                    <label style="margin-left: 15px;">Axes:</label>
+                    <select id="axesToggle" onchange="toggleAxes()">
+                        <option value="on" selected>On</option>
+                        <option value="off">Off</option>
+                    </select>
+                </div>
+                
+                <!-- Layer Slider -->
+                <div class="viewer-control-group" id="layerSliderGroup" style="display: none;">
+                    <label>Layer: <span id="currentLayer">All</span></label>
+                    <input type="range" id="layerSlider" min="0" max="100" value="100" 
+                           oninput="updateLayerDisplay(this.value)" 
+                           style="width: 300px; margin: 0 10px;">
+                    <button onclick="resetLayerView()" style="padding: 4px 12px;">Show All</button>
+                </div>
+                
+                <!-- Color Legend -->
+                <div id="colorLegend" class="color-legend"></div>
+            </div>
+            
+            <div id="gcodeViewer"></div>
+        </div>
+        
+        <!-- ===================================================================================== -->
+        <!-- LAYER CONFIGURATION SECTION -->
+        <!-- ===================================================================================== -->
+        <div id="layerConfigSection" style="display:none; max-width: 1400px; margin: 0 auto;">
+            <h2 style="text-align: center; color: #2c3e50; margin-bottom: 20px;">Layer Configuration (Auto-Validated)</h2>
+            <div id="layerCards" style="display: flex; flex-wrap: nowrap; justify-content: center; gap: 12px; margin-bottom: 30px; overflow-x: auto;">
+                <!-- All layer cards (0-5) will be generated here in one row -->
+            </div>
+        </div>
+        
+        <!-- ===================================================================================== -->
+        <!-- PIPELINE DOWNLOAD BUTTONS -->
+        <!-- ===================================================================================== -->
+        <div class="pipeline-section">
+            <h2 style="display:none; color: #2c3e50; margin-bottom: 30px;">Pipeline Downloads</h2>
+            
+            <!-- Stage 1: Shapely Outputs -->
+            <div class="pipeline-stage">
+                <div class="stage-title">Stage 1: Shapely Processing</div>
+                <div class="pipeline-buttons">
+                    <button class="dl-btn dl-svg" id="pu-dl-svg" onclick="puDownloadFile('svg')" disabled>⬇️ Download SVG preview</button>
+                    <button class="pipeline-btn stage1-btn" id="downloadOriginalBtn" onclick="downloadSVGMachine()" disabled>Download SVG machine</button>
+                    <button class="pipeline-btn stage1-btn" id="downloadFaceBtn" onclick="downloadShapelyFace()" disabled>Download Face SVG</button>
+                    <button class="pipeline-btn stage1-btn" id="downloadReturnBtn" onclick="downloadShapelyReturn()" disabled>Download Return SVG</button>
+                </div>
+            </div>
+            
+            <!-- Stage 2: HTML Output for G-code Generator -->
+            <div class="pipeline-stage" style="display:none">
+                <div class="stage-title">Stage 2: HTML Configuration</div>
+                <div class="pipeline-buttons">
+                    <button class="pipeline-btn stage2-btn" id="downloadHtmlOutputBtn" onclick="downloadHtmlOutput()" disabled>Download HTML Output for G-code Generator</button>
+                </div>
+            </div>
+            
+            <!-- Stage 3: GCode Generation -->
+            <div class="pipeline-stage" style="display:none">
+                <div class="stage-title">Stage 3: GCode Generation</div>
+                <div class="pipeline-buttons">
+                    <button class="pipeline-btn stage2-btn" id="downloadGcodeBtn" onclick="downloadGcode()" disabled>📄 Download GCode (Test in Simplify3D)</button>
+                </div>
+            </div>
+            
+            <!-- Stage 4: 3MF Packaging (Final Output) -->
+            <div class="pipeline-stage" style="display:none">
+                <div class="stage-title">Stage 4: 3MF Packaging (Final Output)</div>
+                <div class="pipeline-buttons">
+                    <button class="pipeline-btn final-btn" id="download3mfBtn" onclick="generateAndDownload3MF()" disabled>📦 Generate & Download 3MF File</button>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            SVG to 3MF Pipeline - Bambu A1 mini - Single Filament - v2.0
+        </footer>
+    </div>
+
+    <!-- ===================================================================================== -->
+    <!-- JAVASCRIPT SECTION -->
+    <!-- ===================================================================================== -->
+    <script>
+    // Configuration will be loaded from bambu_A1mini.json by main.js
+
+    window.downloadSVGMachine = async function() {
+        // Call /shapely_convert with offset=0 and white_offset=0 to get clean Shapely result
+        const fileInput = document.getElementById('shapelyFileInput');
+        if (!fileInput || !fileInput.files[0]) { alert('No SVG loaded'); return; }
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('offset', '0');
+        formData.append('white_offset', '0');
+        formData.append('corner', document.getElementById('shapelyCornerInput').value);
+        formData.append('resolution', document.getElementById('shapelyResolutionInput').value);
+        formData.append('printer', 'bambu');
+        try {
+            const response = await fetch('/shapely_convert', { method: 'POST', body: formData });
+            const result = await response.json();
+            if (result.success && result.face_filename) {
+                window.open('/shapely_download/' + encodeURIComponent(result.face_filename));
+            } else {
+                alert('Error: ' + (result.error || 'Unknown error'));
+            }
+        } catch(e) {
+            alert('Download failed: ' + e.message);
+        }
+    };
+
+    // ── PDF Uploader (from test_upload.html) ─────────────────────────────
+    (function() {
+        let puMode = 'simple';
+        let puFiles = { simple: null, holes: null };
+        let puResult = { svgFilename: null, pngFilename: null };
+
+        window.togglePdfUploader = function() {
+            const toggle = document.getElementById('pdfUploaderToggle');
+            const inner  = document.getElementById('pdfUploaderInner');
+            const collapsed = toggle.classList.toggle('collapsed');
+            inner.style.display = collapsed ? 'none' : '';
+        };
+
+        window.puSwitchMode = function(m) {
+            puMode = m;
+            document.querySelectorAll('.pdf-uploader-inner .mode-tab').forEach((t, i) => {
+                t.classList.toggle('active', (i === 0 && m === 'simple') || (i === 1 && m === 'holes'));
+            });
+            document.querySelectorAll('.pdf-uploader-inner .panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('pu-panel-' + m).classList.add('active');
+        };
+
+        function puSetupZone(zoneId, inputId, fileKey, nameId, infoNameId, infoSizeId) {
+            const zone   = document.getElementById(zoneId);
+            const input  = document.getElementById(inputId);
+            const nameEl = document.getElementById(nameId);
+            input.addEventListener('change', e => {
+                if (e.target.files[0]) puSetFile(fileKey, e.target.files[0], zone, nameEl, infoNameId, infoSizeId);
+            });
+            zone.addEventListener('dragover',  e => { e.preventDefault(); zone.style.borderColor = '#32cd32'; });
+            zone.addEventListener('dragleave', () => zone.style.borderColor = '#667eea');
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                zone.style.borderColor = '#667eea';
+                const f = e.dataTransfer.files[0];
+                if (f && f.name.toLowerCase().endsWith('.pdf')) puSetFile(fileKey, f, zone, nameEl, infoNameId, infoSizeId);
+                else puShowStatus('error', '❌ Please upload a PDF file');
+            });
+        }
+
+        function puSetFile(key, file, zone, nameEl, infoNameId, infoSizeId) {
+            puFiles[key] = file;
+            zone.classList.add('loaded');
+            nameEl.textContent = '✓ ' + file.name;
+            if (infoNameId) {
+                const fi = document.getElementById('pu-fileInfo-' + key);
+                if (fi) {
+                    document.getElementById(infoNameId).textContent = file.name;
+                    document.getElementById(infoSizeId).textContent = puFormatSize(file.size);
+                    fi.classList.add('show');
+                }
+            }
+            puUpdateButtons();
+            // Auto-convert on upload
+            if (key === 'simple') puRunSimple();
+            if (key === 'holes')  puRunHoles();
+        }
+
+        function puUpdateButtons() {
+            document.getElementById('pu-btn-simple').disabled = !puFiles.simple;
+            document.getElementById('pu-btn-holes').disabled  = !puFiles.holes;
+        }
+
+        puSetupZone('pu-zone-simple', 'pu-input-simple', 'simple', 'pu-name-simple', 'pu-fi-name-simple', 'pu-fi-size-simple');
+        puSetupZone('pu-zone-holes',  'pu-input-holes',  'holes',  'pu-name-holes',  null, null);
+
+        window.puRunSimple = async function() {
+            const fd = new FormData();
+            fd.append('file', puFiles.simple);
+            await puRunPipeline('/pdf_convert', fd);
+        };
+
+        window.puRunHoles = async function() {
+            const fd = new FormData();
+            fd.append('pdf_file',     puFiles.holes);
+            fd.append('hole_diameter', document.getElementById('pu-hole-diameter').value);
+            await puRunPipeline('/pdf_holes_convert', fd);
+        };
+
+        async function puRunPipeline(endpoint, formData) {
+            puShowStatus('processing', '🔄 Converting... Please wait');
+            puSetButtonsDisabled(true);
+            puResetPreviews();
+            try {
+                const res  = await fetch(endpoint, { method: 'POST', body: formData });
+                const data = await res.json();
+                if (data.success) {
+                    puResult.svgFilename = data.svg_filename;
+                    puResult.pngFilename = data.png_filename;
+                    if (data.png_filename) {
+                        const img = document.createElement('img');
+                        img.src = '/download_svg/' + data.png_filename;
+                        img.alt = 'PNG Preview';
+                        document.getElementById('pu-preview-png').innerHTML = '';
+                        document.getElementById('pu-preview-png').appendChild(img);
+                        document.getElementById('pu-dot-png').className = 'pu-status-dot ready';
+                        document.getElementById('pu-info-png').textContent = data.png_filename;
+                        document.getElementById('pu-footer-png').textContent = 'Bitmap rasterized at optimum DPI';
+                    }
+                    if (data.svg_content) {
+                        document.getElementById('pu-preview-svg').innerHTML = data.svg_content;
+                        document.getElementById('pu-dot-svg').className = 'pu-status-dot ready';
+                        document.getElementById('pu-info-svg').textContent = puFormatSize(data.file_size);
+                        const parser = new DOMParser();
+                        const svgDoc = parser.parseFromString(data.svg_content, 'image/svg+xml');
+                        const svgEl  = svgDoc.documentElement;
+                        const w = svgEl.getAttribute('width')  || '';
+                        const h = svgEl.getAttribute('height') || '';
+                        document.getElementById('pu-footer-svg').textContent =
+                            (w && h) ? `Dimensions: ${w} × ${h}` : 'Vector SVG ready';
+
+                        // Auto-feed SVG into shapelyFileInput so main.js picks it up
+                        try {
+                            const svgBlob = new Blob([data.svg_content], { type: 'image/svg+xml' });
+                            const svgFile = new File([svgBlob], data.svg_filename || 'converted.svg', { type: 'image/svg+xml' });
+                            const dt = new DataTransfer();
+                            dt.items.add(svgFile);
+                            const shapelyInput = document.getElementById('shapelyFileInput');
+                            shapelyInput.files = dt.files;
+                            shapelyInput.dispatchEvent(new Event('change', { bubbles: true }));
+                            document.getElementById('shapelyAutoStatus').style.color = '#27ae60';
+                            document.getElementById('shapelyAutoStatus').textContent = '✅ SVG loaded automatically from PDF converter — ' + svgFile.name;
+                        } catch(e) {
+                            console.warn('Auto-feed to shapely failed:', e);
+                        }
+                    }
+                    document.getElementById('pu-dl-svg').disabled = !data.svg_filename;
+                    document.getElementById('pu-dl-png').disabled = !data.png_filename;
+                    puShowStatus('success', '✅ ' + data.message);
+                } else {
+                    puShowStatus('error', '❌ ' + data.error);
+                }
+            } catch (err) {
+                puShowStatus('error', '❌ Error: ' + err.message);
+            } finally {
+                puUpdateButtons();
+            }
+        }
+
+        window.puDownloadFile = function(type) {
+            const fn = type === 'svg' ? puResult.svgFilename : puResult.pngFilename;
+            if (fn) window.location.href = '/download_svg/' + fn;
+        };
+
+        function puShowStatus(type, msg) {
+            const s = document.getElementById('pu-status');
+            s.className = 'pu-status ' + type;
+            s.textContent = msg;
+        }
+
+        function puResetPreviews() {
+            ['png', 'svg'].forEach(t => {
+                document.getElementById('pu-preview-' + t).innerHTML =
+                    '<div class="preview-placeholder"><div style="font-size:36px;">⏳</div><p>Processing...</p></div>';
+                document.getElementById('pu-dot-' + t).className = 'pu-status-dot active';
+                document.getElementById('pu-info-' + t).textContent = '';
+                document.getElementById('pu-footer-' + t).textContent = '';
+            });
+            document.getElementById('pu-dl-svg').disabled = true;
+            document.getElementById('pu-dl-png').disabled = true;
+        }
+
+        function puSetButtonsDisabled(v) {
+            document.getElementById('pu-btn-simple').disabled = v;
+            document.getElementById('pu-btn-holes').disabled  = v;
+        }
+
+        function puFormatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+    })();
+    </script>
+    <script src="/static/main.js"></script>
+</body>
+</html>
